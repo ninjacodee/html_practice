@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTMLミッション｜自己紹介ページを作ろう</title>
+  <style>
+    /* ══════════════════════════════════════
+       CSS変数・リセット
+    ══════════════════════════════════════ */
+    :root {
+      --bg:        #f0f4ff;
+      --surface:   #ffffff;
+      --border:    #e2e8f0;
+      --primary:   #4f6ef7;
+      --primary-d: #3a57d4;
+      --accent:    #ff6b6b;
+      --success:   #22c55e;
+      --warn:      #f59e0b;
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --radius:    14px;
+      --shadow:    0 4px 24px rgba(79,110,247,.12);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 20px;
+    }
+
+    /* ══════════════════════════════════════
+       ヘッダー
+    ══════════════════════════════════════ */
+    header {
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      padding: 8px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    }
+    .header-inner {
+      max-width: 640px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-title {
+      flex: 1;
+    }
+    .header-title h1 {
+      font-size: .88rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: .02em;
+    }
+    .header-title p {
+      font-size: .65rem;
+      color: var(--muted);
+      margin-top: 0;
+    }
+    /* プログレスバー */
+    .progress-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .progress-label {
+      font-size: .68rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .progress-bar-outer {
+      width: 100px;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #818cf8);
+      border-radius: 99px;
+      transition: width .5s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ══════════════════════════════════════
+       メイン
+    ══════════════════════════════════════ */
+    main {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 10px 12px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ══════════════════════════════════════
+       ミッションカード
+    ══════════════════════════════════════ */
+    .mission-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 2px solid transparent;
+      transition: border-color .3s;
+    }
+    .mission-card.active { border-color: var(--primary); }
+
+    /* カードヘッダー */
+    .card-header {
+      padding: 8px 14px;
+      background: linear-gradient(135deg, #4f6ef7 0%, #818cf8 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .step-badge {
+      background: rgba(255,255,255,.25);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: .65rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      white-space: nowrap;
+    }
+    .card-header h2 {
+      font-size: .88rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    /* ══════════════════════════════════════
+       ミッション説明
+    ══════════════════════════════════════ */
+    .mission-body {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .mission-hint {
+      font-size: .82rem;
+      line-height: 1.55;
+      color: var(--text);
+      margin-bottom: 0;
+    }
+    .mission-hint strong { color: var(--primary); }
+
+    /* タグヒント（「このタグを使おう」枠） */
+    .tag-hint-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tag-hint-label {
+      font-size: .72rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .tag-chip {
+      background: #eff2ff;
+      color: var(--primary);
+      border: 1px solid #c7d2fe;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-family: 'Courier New', monospace;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
+    /* ══════════════════════════════════════
+       タグボタンエリア
+    ══════════════════════════════════════ */
+    .tag-action-area {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tag-action-label {
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 7px;
+      letter-spacing: .04em;
+    }
+    .tag-buttons {
+      display: flex;
+      flex-wrap: nowrap;       /* 1行固定 */
+      gap: 5px;
+      overflow-x: auto;        /* はみ出たら横スクロール */
+      padding-bottom: 2px;     /* スクロールバー分の余白 */
+      -webkit-overflow-scrolling: touch;
+    }
+    .tag-buttons::-webkit-scrollbar { height: 3px; }
+    .tag-buttons::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 99px; }
+
+    /* タグボタン本体 */
+    .tag-choice-btn {
+      padding: 6px 10px;
+      font-family: 'Courier New', monospace;
+      font-size: .75rem;
+      font-weight: 700;
+      border-radius: 7px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform .1s, box-shadow .15s, background .15s;
+      letter-spacing: .02em;
+      white-space: nowrap;     /* ボタン内テキストの折り返し禁止 */
+      flex-shrink: 0;          /* ボタン自体が縮まないよう固定 */
+      width: auto;
+    }
+    .tag-choice-btn:active { transform: scale(.94); }
+
+    /* 正解ボタン（誘導モード：光らせる） */
+    .tag-choice-btn.hint-glow {
+      background: #4f6ef7;
+      color: #fff;
+      border-color: #4f6ef7;
+      box-shadow: 0 0 0 4px rgba(79,110,247,.25);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 4px rgba(79,110,247,.25); }
+      50%      { box-shadow: 0 0 0 8px rgba(79,110,247,.1); }
+    }
+
+    /* 選択モード：通常ボタン */
+    .tag-choice-btn.choice-mode {
+      background: #f8faff;
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .tag-choice-btn.choice-mode:hover {
+      background: #eff2ff;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* 正解演出 */
+    .tag-choice-btn.correct {
+      background: var(--success);
+      color: #fff;
+      border-color: var(--success);
+      animation: bounce .4s ease;
+    }
+    /* 不正解演出 */
+    .tag-choice-btn.wrong {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      animation: shake .4s ease;
+    }
+    @keyframes bounce {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.15); }
+      70%  { transform: scale(.95); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%     { transform: translateX(-6px); }
+      60%     { transform: translateX(6px); }
+    }
+
+    /* ══════════════════════════════════════
+       フィードバックエリア
+    ══════════════════════════════════════ */
+    .feedback-area {
+      padding: 0 14px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .4s ease, padding .4s ease;
+    }
+    .feedback-area.show {
+      max-height: 80px;
+      padding: 8px 14px;
+    }
+    .feedback-msg {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: #f0fdf4;
+      border: 1.5px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: .8rem;
+      line-height: 1.5;
+      color: #166534;
+    }
+    .feedback-msg .fb-icon { font-size: 1rem; flex-shrink: 0; }
+    .feedback-msg.error {
+      background: #fff1f2;
+      border-color: #fecdd3;
+      color: #9f1239;
+    }
+
+    /* ══════════════════════════════════════
+       プレビューエリア
+    ══════════════════════════════════════ */
+    .preview-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .preview-header {
+      padding: 10px 16px;
+      background: #f8faff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-dots { display: flex; gap: 5px; }
+    .preview-dots span {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .preview-header-title {
+      font-size: .75rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    /* ══════════════════════════════════════
+       コードビューア
+    ══════════════════════════════════════ */
+    .code-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .code-header {
+      padding: 7px 12px;
+      background: #1e1e1e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .code-header-title {
+      font-size: .68rem;
+      color: #888;
+      font-weight: 600;
+    }
+    #codeView {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Courier New', monospace;
+      font-size: .76rem;
+      line-height: 1.6;
+      padding: 10px 12px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      min-height: 80px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    /* シンタックスハイライト */
+    .hl-tag   { color: #4ec9b0; }
+    .hl-attr  { color: #9cdcfe; }
+    .hl-val   { color: #ce9178; }
+    .hl-decl  { color: #c586c0; }
+
+    /* ══════════════════════════════════════
+       クリア画面
+    ══════════════════════════════════════ */
+    .clear-screen {
+      display: none;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .clear-screen.show { display: block; }
+    .clear-emoji { font-size: 3.5rem; margin-bottom: 12px; }
+    .clear-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .clear-msg {
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .clear-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s, transform .1s;
+      width: auto;
+    }
+    .clear-btn:hover  { background: var(--primary-d); }
+    .clear-btn:active { transform: scale(.97); }
+
+    /* ══════════════════════════════════════
+       紙吹雪
+    ══════════════════════════════════════ */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -20px;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    .browser-titlebar {
+      background: #e8ecf0;
+      border-bottom: 1px solid #d0d7de;
+      padding: 4px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .browser-tab-title {
+      font-size: .68rem;
+      color: #333;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #previewFrame {
+      width: 100%;
+      border: none;
+      height: 110px;
+      display: block;
+    }
+
+    /* タイトル入力欄 */
+    .title-input-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .title-input-label {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .title-input {
+      flex: 1;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: .88rem;
+      font-family: inherit;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+    }
+    .title-input:focus { border-color: var(--primary); }
+    .title-input::placeholder { color: #b0bec5; }
+
+    /* ══════════════════════════════════════
+       共通ボタン（上書き防止）
+    ══════════════════════════════════════ */
+    button { font-family: inherit; }
+
+    /* ══════════════════════════════════════
+       イントロ画面
+    ══════════════════════════════════════ */
+    #introScreen {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 16px 0;
+    }
+    .intro-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .intro-hero {
+      background: linear-gradient(135deg, #4f6ef7 0%, #818cf8 100%);
+      padding: 32px 24px 24px;
+      text-align: center;
+      color: #fff;
+    }
+    .intro-hero-emoji { font-size: 3rem; margin-bottom: 10px; }
+    .intro-hero h2 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .intro-hero p {
+      font-size: .85rem;
+      opacity: .88;
+      line-height: 1.6;
+    }
+    /* 完成イメージプレビュー */
+    .intro-preview-wrap {
+      padding: 20px 20px 0;
+    }
+    .intro-preview-label {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: .06em;
+      margin-bottom: 10px;
+    }
+    .intro-browser {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .intro-browser-bar {
+      background: #f1f5f9;
+      border-bottom: 1px solid var(--border);
+      padding: 7px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .intro-browser-bar .dot { width:9px;height:9px;border-radius:50%; }
+    .intro-page {
+      padding: 16px 18px;
+      font-family: sans-serif;
+      font-size: .88rem;
+      line-height: 1.8;
+      background: #fff;
+    }
+    .intro-page h1 { font-size:1.2rem;font-weight:800;color:#1e293b;margin-bottom:4px; }
+    .intro-page p  { color:#475569;margin-bottom:6px; }
+    .intro-page a  { color:#4f6ef7;text-decoration:underline; }
+    .intro-page ul { padding-left:18px;color:#475569; }
+    .intro-page .img-mock {
+      background: linear-gradient(135deg,#4f6ef7,#818cf8);
+      border-radius:8px;
+      height:50px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      font-size:.75rem;
+      font-weight:700;
+      margin-bottom:8px;
+    }
+    .intro-page strong { color:#1e293b; }
+    /* ステップ一覧 */
+    .intro-steps-wrap {
+      padding: 18px 20px 0;
+    }
+    .intro-steps-label {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: .06em;
+      margin-bottom: 10px;
+    }
+    .intro-steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .intro-step-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: #f8faff;
+      border-radius: 8px;
+      border: 1px solid #e8eeff;
+    }
+    .intro-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-size: .65rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .intro-step-name {
+      font-size: .82rem;
+      color: var(--text);
+      font-weight: 600;
+      flex: 1;
+    }
+    .intro-step-tag {
+      font-family: 'Courier New', monospace;
+      font-size: .72rem;
+      color: var(--primary);
+      background: #eff2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 5px;
+      padding: 1px 7px;
+    }
+    /* スタートボタン */
+    .intro-start-wrap {
+      padding: 20px;
+    }
+    .intro-start-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #4f6ef7, #818cf8);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: .03em;
+      box-shadow: 0 4px 16px rgba(79,110,247,.35);
+      transition: transform .1s, box-shadow .15s;
+    }
+    .intro-start-btn:hover { box-shadow: 0 6px 20px rgba(79,110,247,.45); }
+    .intro-start-btn:active { transform: scale(.97); }
+  </style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header>
+  <div class="header-inner">
+    <div class="header-title">
+      <h1>🚀 HTMLミッション</h1>
+      <p>自己紹介ページを作ろう</p>
+    </div>
+    <div class="progress-wrap">
+      <span class="progress-label" id="progressLabel">0%</span>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- イントロ画面 -->
+<div id="introScreen">
+  <div class="intro-card">
+
+    <div class="intro-hero">
+      <div class="intro-hero-emoji">🌐</div>
+      <h2>自己紹介ページを<br>作ってみよう！</h2>
+      <p>今まで学んだHTMLタグを活かして<br>あなただけのページを完成させよう</p>
+    </div>
+
+    <!-- 完成イメージ -->
+    <div class="intro-preview-wrap">
+      <p class="intro-preview-label">✨ 完成するとこんなページになるよ</p>
+      <div class="intro-browser">
+        <div class="intro-browser-bar">
+          <span class="dot" style="background:#ff5f57"></span>
+          <span class="dot" style="background:#febc2e"></span>
+          <span class="dot" style="background:#28c840"></span>
+        </div>
+        <div class="intro-page">
+          <div class="img-mock">🖼️ 画像エリア</div>
+          <h1>私の自己紹介</h1>
+          <p>はじめまして！HTMLを<strong>楽しく</strong>学んでいます。</p>
+          <a href="#">📧 連絡はこちら</a>
+          <ul>
+            <li>🎵 音楽が好き</li>
+            <li>💻 プログラミング勉強中</li>
+            <li>🌸 旅行が趣味</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ステップ一覧 -->
+    <div class="intro-steps-wrap">
+      <p class="intro-steps-label">📋 全10ステップでつくるよ</p>
+      <div class="intro-steps-list">
+        <div class="intro-step-row"><span class="intro-step-num">1</span><span class="intro-step-name">ページの土台を作ろう</span><span class="intro-step-tag">&lt;!DOCTYPE&gt; &lt;html&gt;</span></div>
+        <div class="intro-step-row"><span class="intro-step-num">2</span><span class="intro-step-name">情報エリアを作ろう</span><span class="intro-step-tag">&lt;head&gt; &lt;title&gt;</span></div>
+        <div class="intro-step-row"><span class="intro-step-num">3</span><span class="intro-step-name">表示エリアを作ろう</span><span class="intro-step-tag">&lt;body&gt;</span></div>
+        <div class="intro-step-row"><span class="intro-step-num">4</span><span class="intro-step-name">見出しを入れよう</span><span class="intro-step-tag">&lt;h1&gt;</span></div>
+        <div class="intro-step-row"><span class="intro-step-num">5</span><span class="intro-step-name">説明文を書こう</span><span class="intro-step-tag">&lt;p&gt;</span></div>
+        <div class="intro-step-row"><span class="intro-step-num">6</span><span class="intro-step-name">大事な部分を強調</span><span class="intro-step-tag">&lt;strong&gt;</span></div>
+        <div class="intro-step-row"><span class="intro-step-num">7</span><span class="intro-step-name">リンクを追加しよう</span><span class="intro-step-tag">&lt;a&gt;</span></div>
+        <div class="intro-step-row"><span class="intro-step-num">8</span><span class="intro-step-name">画像を表示しよう</span><span class="intro-step-tag">&lt;img&gt;</span></div>
+        <div class="intro-step-row"><span class="intro-step-num">9</span><span class="intro-step-name">リストを作ろう</span><span class="intro-step-tag">&lt;ul&gt; &lt;li&gt;</span></div>
+        <div class="intro-step-row"><span class="intro-step-num">10</span><span class="intro-step-name">全体をまとめよう</span><span class="intro-step-tag">&lt;div&gt;</span></div>
+      </div>
+    </div>
+
+    <div class="intro-start-wrap">
+      <button class="intro-start-btn" onclick="startGame()">🚀 ゲームスタート！</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ゲーム本体（最初は非表示） -->
+<main id="mainContent" style="display:none">
+
+  <!-- ミッションカード -->
+  <div class="mission-card active" id="missionCard">
+    <div class="card-header">
+      <span class="step-badge" id="stepBadge">STEP 1 / 9</span>
+      <h2 id="stepTitle">ページの土台を作ろう</h2>
+    </div>
+    <div class="mission-body">
+      <p class="mission-hint" id="stepHint"></p>
+    </div>
+    <div class="tag-action-area">
+      <p class="tag-action-label" id="actionLabel">👆 正しいタグを押してみよう！</p>
+      <div class="tag-buttons" id="tagButtons"></div>
+    </div>
+    <div class="feedback-area" id="feedbackArea">
+      <div class="feedback-msg" id="feedbackMsg">
+        <span class="fb-icon">✅</span>
+        <span id="feedbackText"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- クリア画面 -->
+  <div class="clear-screen" id="clearScreen">
+    <div class="clear-emoji">🎉</div>
+    <div class="clear-title">ミッション完了！</div>
+    <p class="clear-msg">
+      すごい！自己紹介ページが完成しました。<br>
+      HTMLの基本タグをすべて使いこなせましたよ！
+    </p>
+    <button class="clear-btn" onclick="restartGame()">🔄 もう一度チャレンジ</button>
+  </div>
+
+  <!-- プレビュー -->
+  <div class="preview-section">
+    <!-- ブラウザ風タイトルバー -->
+    <div class="browser-titlebar">
+      <div class="preview-dots">
+        <span style="background:#ff5f57"></span>
+        <span style="background:#febc2e"></span>
+        <span style="background:#28c840"></span>
+      </div>
+      <span class="browser-tab-title" id="browserTabTitle">🌐 プレビュー</span>
+    </div>
+    <iframe id="previewFrame" sandbox="allow-same-origin"></iframe>
+  </div>
+
+  <!-- コードビューア -->
+  <div class="code-section">
+    <div class="code-header">
+      <span style="color:#ff5f57;font-size:.8rem;">●</span>
+      <span style="color:#febc2e;font-size:.8rem;">●</span>
+      <span style="color:#28c840;font-size:.8rem;">●</span>
+      <span class="code-header-title">現在のコード</span>
+    </div>
+    <div id="codeView"></div>
+  </div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════
+// ステップ定義
+// ══════════════════════════════════════════════
+const STEPS = [
+  {
+    title:    'ページの土台を作ろう',
+    hint:     '<strong>HTMLページ</strong>は、まず「これはHTMLです」と宣言するところから始まります。<br>2つのタグを順番に押してみよう！',
+    mode:     'guided',
+    correct:  'doctype',
+    allChoices: null,
+    subActions: [
+      {
+        correct:  'doctype',
+        feedback: '✅ 「これはHTMLです」と宣言できました！次は &lt;html&gt; を押してみよう。',
+        addCode:  ()     => '<!DOCTYPE html>',
+        updatePreview: true,
+      },
+      {
+        correct:  'html',
+        feedback: '🎉 ページの土台が完成！&lt;html&gt; タグでページ全体を囲みました。',
+        addCode:  (prev) => prev + '\n<html>\n\n</html>',
+        updatePreview: true,
+      },
+    ],
+    action: (state) => { state.doctype = true; state.html = true; return state; },
+    feedback: '',
+    addCode: (prev) => prev,
+  },
+  {
+    title:    'ページの情報エリアを作ろう',
+    hint:     'HTMLには<strong>ブラウザに伝える情報</strong>を書く場所があります。タイトルなどを書く &lt;head&gt; エリアです。2つのタグを順番に押してみよう！',
+    mode:     'guided',
+    correct:  'head',
+    allChoices: null,
+    subActions: [
+      {
+        correct:  'head',
+        feedback: '✅ 情報エリアができました！次はページの名前（タイトル）を設定する &lt;title&gt; を押してみよう。',
+        addCode:  (prev) => prev.replace('<html>\n\n</html>', '<html>\n<head>\n\n</head>\n\n</html>'),
+        updatePreview: true,
+      },
+      {
+        correct:  'title',
+        feedback: '🎉 ページタイトルが設定されました！ブラウザのタブに表示される名前です。タイトルバーが変わったか確認してみよう！',
+        addCode:  (prev) => prev.replace('<head>\n\n</head>', '<head>\n  <title>私のページ</title>\n</head>'),
+        updatePreview: true,
+      },
+    ],
+    action: (state) => { state.head = true; state.title = true; return state; },
+    feedback: '',
+    addCode: (prev) => prev,
+  },
+  {
+    title:    '表示される場所を作ろう',
+    hint:     'ページに<strong>文字や画像を表示するエリア</strong>を作ります。それが &lt;body&gt; タグです。押してみよう！',
+    mode:     'guided',
+    correct:  'body',
+    allChoices: null,
+    action: (state) => { state.body = true; return state; },
+    feedback: '✨ 表示エリアが完成！ここに内容を追加していきます。',
+    addCode: (prev) => prev.replace('</html>', '  <body>\n\n  </body>\n</html>'),
+  },
+  {
+    title:    'タイトルを入れよう',
+    hint:     'ページの<strong>一番大きな見出し</strong>を入れましょう。「私の自己紹介」というタイトルが入ります！',
+    mode:     'guided',
+    correct:  'h1',
+    allChoices: null,
+    action: (state) => { state.h1 = true; return state; },
+    feedback: '📢 タイトルが表示されました！大きな文字で目立ちますね。',
+    addCode: (prev) => prev.replace('  <body>\n', '  <body>\n    <h1>私の自己紹介</h1>\n'),
+  },
+  {
+    title:    '説明文を書こう',
+    hint:     '次は<strong>普通の文章（段落）</strong>を追加します。自己紹介の文章を入れましょう！',
+    mode:     'guided',
+    correct:  'p',
+    allChoices: null,
+    action: (state) => { state.p = true; return state; },
+    feedback: '📝 文章が追加されました！ページらしくなってきましたね。',
+    addCode: (prev) => prev.replace('</h1>\n', '</h1>\n    <p>はじめまして！HTMLを学んでいます。</p>\n'),
+  },
+  {
+    title:    '大事な部分を強調しよう',
+    hint:     '文章の中で<strong>特に伝えたい言葉</strong>を太字にできます。どのタグを使うか選んでみよう！',
+    hintTags: ['&lt;strong&gt;'],
+    mode:     'choice',
+    correct:  'strong',
+    allChoices: ['strong', 'em', 'span', 'div'],
+    action: (state) => { state.strong = true; return state; },
+    feedback: '💪 強調できました！太字にすると目を引きますね。',
+    addCode: (prev) => prev.replace('HTMLを学んでいます。</p>', 'HTMLを<strong>楽しく</strong>学んでいます。</p>'),
+  },
+  {
+    title:    'リンクを追加しよう',
+    hint:     'クリックすると<strong>別のページに移動できるリンク</strong>を作りましょう。どのタグを使うかな？',
+    mode:     'choice',
+    correct:  ['a', 'href'],
+    allChoices: ['a', 'href', 'link', 'p'],
+    action: (state) => { state.a = true; return state; },
+    feedback: '🔗 リンクが追加されました！リンクには &lt;a&gt; タグと、移動先を指定する <code style="background:#e8f4fd;padding:1px 4px;border-radius:3px">href</code> 属性を使います。どちらを選んでも正解でしたよ！',
+    addCode: (prev) => {
+      return prev.replace(/<\/p>\n(\s*<\/body>)/, '</p>\n    <a href="#">📧 連絡はこちら</a>\n$1');
+    },
+  },
+  {
+    title:    '画像を表示しよう',
+    hint:     '<strong>画像を表示する</strong>タグを追加しましょう。どれかな？',
+    mode:     'choice',
+    correct:  'img',
+    allChoices: ['img', 'src', 'picture', 'video'],
+    action: (state) => { state.img = true; return state; },
+    feedback: '🖼️ 画像が表示されました！src属性に画像のURLを入れると、好きな画像を表示できます。',
+    addCode: (prev) => {
+      return prev.replace(
+        /(<body>\n\s*)(<h1>)/,
+        `$1<div style="background:linear-gradient(135deg,#4f6ef7,#818cf8);border-radius:6px;padding:3px 10px;display:inline-flex;align-items:center;gap:6px;margin-bottom:6px;color:#fff;font-size:.75rem">
+      <span>🖼️</span><span>画像エリア（img タグ）</span>
+    </div>\n    $2`
+      );
+    },
+  },
+  {
+    title:    'リストを作ろう',
+    hint:     '<strong>箇条書きリスト</strong>を作ります。「リストの外側」と「各項目」、2つのタグが必要です。順番に選んでみよう！',
+    mode:     'choice',
+    correct:  'ul',   // 最初の正解（subActionsで管理）
+    allChoices: ['ul', 'ol', 'li', 'list'],
+    subActions: [
+      {
+        correct:   'ul',
+        feedback:  '📋 リストの枠ができました！もう1つ、項目を作るタグが必要です。選んでみよう！',
+        addCode:   (prev) => prev.replace(
+          /(<\/a>\n)(\s*<\/body>)/,
+          '$1    <ul>\n      <li>🎵 音楽が好き</li>\n      <li>💻 プログラミング勉強中</li>\n      <li>🌸 旅行が趣味</li>\n    </ul>\n$2'
+        ),
+        updatePreview: true,
+      },
+      {
+        correct:   'li',
+        feedback:  '✅ 完璧！ul でリスト全体を囲み、li で各項目を作ります。',
+        addCode:   (prev) => prev,
+        updatePreview: false,
+      },
+    ],
+    action: (state) => { state.ul = true; return state; },
+    feedback: '',
+    addCode: (prev) => prev,
+  },
+  {
+    title:    '全体をまとめよう',
+    hint:     '最後に！<strong>まとめのブロック</strong>を作るタグは何でしょう？HTMLで最もよく使われるタグです。',
+    hintTags: ['&lt;div&gt;'],
+    mode:     'choice',
+    correct:  'div',
+    allChoices: ['div', 'section', 'article', 'main'],
+    action: (state) => { state.div = true; return state; },
+    feedback: '🎊 完璧！divでページ全体をまとめることができました！',
+    addCode: (prev) => {
+      const inner = prev.match(/<body>([\s\S]*?)<\/body>/)?.[1] || '';
+      return prev.replace(/<body>[\s\S]*?<\/body>/, `  <body>\n    <div style="max-width:480px;margin:20px auto;padding:16px;font-family:sans-serif;background:#f8faff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08)">${inner.trim()}\n    </div>\n  </body>`);
+    },
+  },
+];
+
+// ══════════════════════════════════════════════
+// 状態管理
+// ══════════════════════════════════════════════
+let currentStep = 0;
+let codeHistory = [''];
+let gameState   = {};
+let subActionIndex = 0;  // STEP1のような複数アクションステップ内の進行位置
+
+// 誘導モード（STEP1〜5）で全タグを並べるための「残りタグプール」
+// STEP1〜5で使うタグをすべてリストアップ（使ったら削除していく）
+const GUIDED_TAGS_POOL_INIT = ['doctype', 'html', 'head', 'title', 'body', 'h1', 'p'];
+let guidedTagsPool = [];
+
+// ══════════════════════════════════════════════
+// 初期化
+// ══════════════════════════════════════════════
+function startGame() {
+  // イントロを隠してゲーム本体を表示
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('mainContent').style.display = '';
+  init();
+}
+
+function init() {
+  currentStep    = 0;
+  codeHistory    = [''];
+  gameState      = {};
+  subActionIndex = 0;
+  guidedTagsPool = [...GUIDED_TAGS_POOL_INIT];
+  document.getElementById('clearScreen').classList.remove('show');
+  document.getElementById('missionCard').style.display = '';
+  renderStep();
+  updateProgress();
+  updatePreview('');
+  updateCodeView('');
+}
+
+// ══════════════════════════════════════════════
+// ステップ描画
+// ══════════════════════════════════════════════
+function renderStep() {
+  const step = STEPS[currentStep];
+  subActionIndex = 0;  // ステップが切り替わったらサブアクションもリセット
+
+  document.getElementById('stepBadge').textContent =
+    `STEP ${currentStep + 1} / ${STEPS.length}`;
+  document.getElementById('stepTitle').textContent = step.title;
+
+  // ヒントテキスト（innerHTML使用）
+  document.getElementById('stepHint').innerHTML = step.hint;
+
+  // アクションラベル
+  document.getElementById('actionLabel').textContent =
+    step.mode === 'guided'
+      ? '👆 光っているボタンを押してみよう！'
+      : '🤔 どのタグを使うか選んでみよう！';
+
+  // タグボタン描画（サブアクション対応）
+  renderTagButtons(step);
+
+  // フィードバック非表示
+  hideFeedback();
+}
+
+// ══════════════════════════════════════════════
+// タグボタン描画
+// ══════════════════════════════════════════════
+function renderTagButtons(step) {
+  const container = document.getElementById('tagButtons');
+  container.innerHTML = '';
+
+  // 誘導モードでの正解タグ特定（配列対応）
+  const rawCorrect = step.subActions
+    ? step.subActions[subActionIndex].correct
+    : step.correct;
+  const correctArr = Array.isArray(rawCorrect) ? rawCorrect : [rawCorrect];
+
+  if (step.mode === 'guided') {
+    guidedTagsPool.forEach(tag => {
+      const btn = makeTagBtn(tag, step);
+      if (correctArr.includes(tag)) {
+        btn.classList.add('hint-glow');
+      } else {
+        btn.classList.add('choice-mode');
+        btn.style.opacity = '0.45';
+        btn.style.pointerEvents = 'none';
+      }
+      container.appendChild(btn);
+    });
+
+  } else {
+    const choices = [...step.allChoices].sort(() => Math.random() - .5);
+    choices.forEach(tag => {
+      const btn = makeTagBtn(tag, step);
+      btn.classList.add('choice-mode');
+      container.appendChild(btn);
+    });
+  }
+}
+
+function makeTagBtn(tag, step) {
+  const btn = document.createElement('button');
+  btn.className   = 'tag-choice-btn';
+  btn.textContent = tag === 'doctype' ? '<!DOCTYPE html>' : `<${tag}>`;
+  btn.onclick = () => handleTagClick(tag, step, btn);
+  return btn;
+}
+
+// ══════════════════════════════════════════════
+// タグクリック処理
+// ══════════════════════════════════════════════
+function handleTagClick(tag, step, btn) {
+  // 現在の正解（サブアクションがあればそちらを参照）
+  const rawCorrect = step.subActions
+    ? step.subActions[subActionIndex].correct
+    : step.correct;
+
+  // correct は文字列の場合も配列の場合もある
+  const correctArr = Array.isArray(rawCorrect) ? rawCorrect : [rawCorrect];
+  const isCorrect  = correctArr.includes(tag);
+
+  if (!isCorrect) {
+    btn.classList.add('wrong');
+    showFeedback('❌ 惜しい！もう一度考えてみよう。', true);
+    setTimeout(() => btn.classList.remove('wrong'), 500);
+    return;
+  }
+
+  // ── 正解 ──
+  btn.classList.add('correct');
+  document.querySelectorAll('.tag-choice-btn').forEach(b => {
+    b.style.pointerEvents = 'none';
+    b.classList.remove('hint-glow');
+  });
+
+  // 誘導モードなら使用済みタグをプールから削除
+  if (step.mode === 'guided') {
+    guidedTagsPool = guidedTagsPool.filter(t => !correctArr.includes(t));
+  }
+
+  // サブアクションがある場合の処理
+  if (step.subActions) {
+    const sub = step.subActions[subActionIndex];
+
+    // コード更新（updatePreviewフラグがtrueのときだけ変える）
+    if (sub.updatePreview) {
+      const prevCode = codeHistory[currentStep];
+      const newCode  = sub.addCode(prevCode);
+      codeHistory[currentStep] = newCode;  // 同じステップ内で上書き
+      updatePreview(newCode);
+      updateCodeView(newCode);
+    }
+
+    showFeedback(sub.feedback, false);
+    subActionIndex++;
+
+    // まだ次のサブアクションがある → ボタンを再描画して続ける
+    if (subActionIndex < step.subActions.length) {
+      setTimeout(() => {
+        hideFeedback();
+        renderTagButtons(step);  // 次の正解タグを光らせる
+      }, 1600);
+      return;  // まだSTEP進行しない
+    }
+
+    // 全サブアクション完了 → コード確定
+    codeHistory[currentStep + 1] = codeHistory[currentStep];
+
+  } else {
+    // 通常ステップの処理
+    const prevCode = codeHistory[currentStep];
+    const newCode  = step.addCode(prevCode);
+    codeHistory[currentStep + 1] = newCode;
+    updatePreview(newCode);
+    updateCodeView(newCode);
+    showFeedback(step.feedback, false);
+  }
+
+  // ゲーム状態更新
+  step.action(gameState);
+
+  // 次のステップへ
+  setTimeout(() => {
+    currentStep++;
+    subActionIndex = 0;
+    updateProgress();
+
+    if (currentStep >= STEPS.length) {
+      showClearScreen();
+    } else {
+      const card = document.getElementById('missionCard');
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(8px)';
+      card.style.transition = 'opacity .3s, transform .3s';
+      setTimeout(() => {
+        renderStep();
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, 1800);
+}
+
+// ══════════════════════════════════════════════
+// フィードバック表示
+// ══════════════════════════════════════════════
+function showFeedback(msg, isError) {
+  const area = document.getElementById('feedbackArea');
+  const box  = document.getElementById('feedbackMsg');
+  const text = document.getElementById('feedbackText');
+  text.innerHTML = msg;
+  box.className  = 'feedback-msg' + (isError ? ' error' : '');
+  area.classList.add('show');
+}
+function hideFeedback() {
+  document.getElementById('feedbackArea').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════
+// プログレス更新
+// ══════════════════════════════════════════════
+function updateProgress() {
+  const pct = Math.round((currentStep / STEPS.length) * 100);
+  document.getElementById('progressLabel').textContent = pct + '%';
+  document.getElementById('progressBar').style.width   = pct + '%';
+}
+
+// ══════════════════════════════════════════════
+// コードから <title> の中身を抽出するヘルパー
+// ══════════════════════════════════════════════
+function extractTitle(code) {
+  const m = code.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  return (m && m[1].trim()) || 'サンプルページ';
+}
+
+// ══════════════════════════════════════════════
+// head/title を自動組み込みした完全HTMLを生成
+// コードにすでに <head><title> が含まれる場合はそのまま使い、
+// なければ内部でラップして補完する
+// ══════════════════════════════════════════════
+function buildFullHtml(code) {
+  // プレビュー内を小さく表示するスタイル
+  const previewStyle = 'body{font-family:sans-serif;padding:8px 10px;line-height:1.5;color:#1e293b;font-size:11px}h1{font-size:14px;margin:0 0 4px;color:#1e293b}h2{font-size:12px;margin:0 0 3px}h3{font-size:11px;margin:0 0 3px}p{margin:0 0 4px}a{color:#4f6ef7}ul,ol{padding-left:14px;margin:0 0 4px}li{margin-bottom:2px}img{max-width:100%;max-height:18px;vertical-align:middle}div{font-size:11px}strong{color:#1e293b}';
+
+  // すでに完全なHTML構造を持っているか判定
+  if (/<html[\s>]/i.test(code)) {
+    if (!/<head[\s>]/i.test(code)) {
+      return code.replace(/<html>/i, `<html>\n<head><style>${previewStyle}</style></head>`);
+    }
+    if (!/<style[\s>]/i.test(code)) {
+      return code.replace(/<\/head>/i, `<style>${previewStyle}</style></head>`);
+    }
+    // style があっても preview用の小さいフォントを上書き追加
+    return code.replace(/<\/head>/i, `<style>${previewStyle}</style></head>`);
+  }
+  // body だけのコードをフルHTMLにラップ
+  const title = extractTitle(code);
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${escapeHtml(title)}</title>
+  <style>${previewStyle}</style>
+</head>
+${code}
+</html>`;
+}
+
+// ══════════════════════════════════════════════
+// プレビュー更新（ブラウザ風UIも同時更新）
+// タイトルはコード内の <title> タグから自動抽出
+// ══════════════════════════════════════════════
+function updatePreview(code) {
+  const frame = document.getElementById('previewFrame');
+
+  // <title> タグからタイトルを抽出してブラウザUIを更新
+  const title    = extractTitle(code);
+  const tabTitle = document.getElementById('browserTabTitle');
+  if (tabTitle) tabTitle.textContent = code.trim() ? `🌐 ${title}` : '🌐 プレビュー';
+
+  // コードが空ならプレースホルダ
+  const html = code.trim()
+    ? buildFullHtml(code)
+    : `<html><body style="font-family:sans-serif;color:#94a3b8;padding:20px;text-align:center">
+        <p style="font-size:2rem">🚀</p>
+        <p>ここにページが表示されます</p>
+       </body></html>`;
+
+  frame.srcdoc = html;
+}
+
+// タイトル入力との連動は削除（コードから自動抽出するため不要）
+
+// ══════════════════════════════════════════════
+// コードビューア更新（body内のコードのみ表示）
+// head/title は内部処理なのでユーザーには見せない
+// ══════════════════════════════════════════════
+function updateCodeView(code) {
+  const view = document.getElementById('codeView');
+  if (!code.trim()) {
+    view.innerHTML = '<span style="color:#555">// コードがここに表示されます</span>';
+    return;
+  }
+  // 簡易シンタックスハイライト
+  let highlighted = escapeHtml(code)
+    .replace(/(&lt;!DOCTYPE[^&]*&gt;)/gi, '<span class="hl-decl">$1</span>')
+    .replace(/(&lt;\/[a-z][a-z0-9]*&gt;)/gi, '<span class="hl-tag">$1</span>')
+    .replace(/(=&quot;[^&]*&quot;)/g, '<span class="hl-val">$1</span>')
+    .replace(/(&lt;[a-z][a-z0-9]*)(\s|&gt;)/gi, '<span class="hl-tag">$1</span>$2');
+
+  view.innerHTML = highlighted;
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ══════════════════════════════════════════════
+// クリア画面
+// ══════════════════════════════════════════════
+function showClearScreen() {
+  document.getElementById('missionCard').style.display = 'none';
+  document.getElementById('clearScreen').classList.add('show');
+  launchConfetti();
+
+  // 最終プレビュー：コンテンツ全体が見えるよう高さを自動調整
+  const finalCode = codeHistory[STEPS.length];
+  updatePreview(finalCode);
+  updateCodeView(finalCode);
+
+  // iframe のロード完了後にコンテンツ高さへ伸長
+  const frame = document.getElementById('previewFrame');
+  frame.style.height = 'auto';   // 固定値を解除
+  frame.onload = () => {
+    const b = frame.contentDocument?.body;
+    if (b) {
+      frame.style.height = (b.scrollHeight + 16) + 'px';
+    }
+  };
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════
+// 紙吹雪
+// ══════════════════════════════════════════════
+function launchConfetti() {
+  const colors = ['#4f6ef7','#ff6b6b','#22c55e','#f59e0b','#818cf8','#fb7185'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        width: ${6 + Math.random() * 8}px;
+        height: ${6 + Math.random() * 8}px;
+        border-radius: ${Math.random() > .5 ? '50%' : '2px'};
+        animation-duration: ${1.5 + Math.random() * 2}s;
+        animation-delay: ${Math.random() * .5}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }, i * 30);
+  }
+}
+
+// ══════════════════════════════════════════════
+// リスタート
+// ══════════════════════════════════════════════
+function restartGame() {
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('introScreen').style.display = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ページ読み込み時は何もしない（スタートボタンで startGame() が呼ばれる）
+</script>
+</body>
+</html>
